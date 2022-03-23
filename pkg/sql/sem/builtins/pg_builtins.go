@@ -2369,14 +2369,29 @@ func isMemberOfRole(
 		return tree.HasPrivilege, nil
 	}
 
+	var userID oid.Oid
+	values, err := ctx.Planner.QueryRowEx(ctx.Ctx(), "isMemberOfRole", nil, sessiondata.InternalExecutorOverride{
+		User: security.RootUserName(),
+	},
+		`SELECT user_id FROM system.users WHERE username=$1`, role)
+	if err != nil {
+		return tree.HasNoPrivilege, errors.Wrapf(err, "error looking up user %s", role)
+	}
+
+	if values != nil {
+		if v := values[0]; v != tree.DNull {
+			userID = oid.Oid(v.(*tree.DOid).DInt)
+		}
+	}
+	fmt.Println("aaaa isMemberOfRole %d", userID)
 	// Superusers have every privilege and are part of every role.
-	if isSuper, err := ctx.Planner.UserHasAdminRole(ctx.Context, user); err != nil {
+	if isSuper, err := ctx.Planner.UserHasAdminRole(ctx.Context, security.SQLUserInfo{user, userID}); err != nil {
 		return tree.HasNoPrivilege, err
 	} else if isSuper {
 		return tree.HasPrivilege, nil
 	}
 
-	allRoleMemberships, err := ctx.Planner.MemberOfWithAdminOption(ctx.Context, security.SQLUserInfo{user, 0})
+	allRoleMemberships, err := ctx.Planner.MemberOfWithAdminOption(ctx.Context, security.SQLUserInfo{user, userID})
 	if err != nil {
 		return tree.HasNoPrivilege, err
 	}
@@ -2397,7 +2412,7 @@ func isAdminOfRole(
 	// Superusers are an admin of every role.
 	//
 	// NB: this is intentionally before the user == role check here.
-	if isSuper, err := ctx.Planner.UserHasAdminRole(ctx.Context, user); err != nil {
+	if isSuper, err := ctx.Planner.UserHasAdminRole(ctx.Context, security.SQLUserInfo{user, 0}); err != nil {
 		return tree.HasNoPrivilege, err
 	} else if isSuper {
 		return tree.HasPrivilege, nil

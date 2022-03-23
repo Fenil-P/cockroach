@@ -82,7 +82,7 @@ CREATE TABLE system.descriptor (
 );`
 
 	UserIDSequenceSchema = `
-CREATE SEQUENCE system.user_id_seq START 100 INCREMENT 1;`
+CREATE SEQUENCE system.user_id_seq START 100 MIN VALUE 100 INCREMENT 1;`
 
 	UsersTableSchema = `
 CREATE TABLE system.users (
@@ -888,7 +888,7 @@ var (
 	falseBoolString  = "false"
 	trueBoolString   = "true"
 	zeroIntString    = "0:::INT8"
-	genNextOIDString = "OID(nextval('system.user_id_seq'))"
+	genNextOIDString = "OID(nextval('system.user_id_seq')+100)"
 
 	// UserIDSequence is the descriptor for the user ID sequence.
 	UserIDSequence = registerSystemTable(
@@ -919,7 +919,7 @@ var (
 				Increment: 1,
 				MinValue:  100,
 				MaxValue:  math.MaxUint32,
-				Start:     1,
+				Start:     100,
 				CacheSize: 1,
 			}
 			tbl.NextColumnID = 0
