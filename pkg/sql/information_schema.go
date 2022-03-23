@@ -482,14 +482,14 @@ https://www.postgresql.org/docs/9.5/infoschema-columns.html`,
 				}
 
 				err := addRow(
-					dbNameStr,                         // table_catalog
-					scNameStr,                         // table_schema
-					tree.NewDString(table.GetName()),  // table_name
-					tree.NewDString(column.GetName()), // column_name
-					tree.NewDString(description),      // column_comment
-					tree.NewDInt(tree.DInt(column.GetPGAttributeNum())), // ordinal_position
-					colDefault,                        // column_default
-					yesOrNoDatum(column.IsNullable()), // is_nullable
+					dbNameStr,                                                 // table_catalog
+					scNameStr,                                                 // table_schema
+					tree.NewDString(table.GetName()),                          // table_name
+					tree.NewDString(column.GetName()),                         // column_name
+					tree.NewDString(description),                              // column_comment
+					tree.NewDInt(tree.DInt(column.GetPGAttributeNum())),       // ordinal_position
+					colDefault,                                                // column_default
+					yesOrNoDatum(column.IsNullable()),                         // is_nullable
 					tree.NewDString(column.GetType().InformationSchemaName()), // data_type
 					characterMaximumLength(column.GetType()),                  // character_maximum_length
 					characterOctetLength(column.GetType()),                    // character_octet_length
@@ -510,15 +510,15 @@ https://www.postgresql.org/docs/9.5/infoschema-columns.html`,
 					tree.DNull,                                                // domain_name
 					dbNameStr,                                                 // udt_catalog
 					udtSchema,                                                 // udt_schema
-					tree.NewDString(column.GetType().PGName()), // udt_name
-					tree.DNull, // scope_catalog
-					tree.DNull, // scope_schema
-					tree.DNull, // scope_name
-					tree.DNull, // maximum_cardinality
-					tree.DNull, // dtd_identifier
-					tree.DNull, // is_self_referencing
-					yesOrNoDatum(column.IsGeneratedAsIdentity()), // is_identity
-					colGeneratedAsIdentity,                       // identity_generation
+					tree.NewDString(column.GetType().PGName()),                // udt_name
+					tree.DNull,                                                // scope_catalog
+					tree.DNull,                                                // scope_schema
+					tree.DNull,                                                // scope_name
+					tree.DNull,                                                // maximum_cardinality
+					tree.DNull,                                                // dtd_identifier
+					tree.DNull,                                                // is_self_referencing
+					yesOrNoDatum(column.IsGeneratedAsIdentity()),              // is_identity
+					colGeneratedAsIdentity,                                    // identity_generation
 					// TODO(janexing): parse the GeneratedAsIdentitySequenceOption to
 					// fill out these "identity_x" columns.
 					tree.DNull,                        // identity_start
@@ -531,7 +531,7 @@ https://www.postgresql.org/docs/9.5/infoschema-columns.html`,
 					yesOrNoDatum(table.IsTable() &&
 						!table.IsVirtualTable() &&
 						!column.IsComputed(),
-					), // is_updatable
+					),                                             // is_updatable
 					yesOrNoDatum(column.IsHidden()),               // is_hidden
 					tree.NewDString(column.GetType().SQLString()), // crdb_sql_type
 				)
@@ -563,10 +563,10 @@ https://www.postgresql.org/docs/current/infoschema-column-udt-usage.html`,
 						tree.NewDString(col.GetType().TypeMeta.Name.Catalog), // UDT_CATALOG
 						tree.NewDString(col.GetType().TypeMeta.Name.Schema),  // UDT_SCHEMA
 						tree.NewDString(col.GetType().TypeMeta.Name.Name),    // UDT_NAME
-						dbNameStr,                      // TABLE_CATALOG
-						scNameStr,                      // TABLE_SCHEMA
-						tbNameStr,                      // TABLE_NAME
-						tree.NewDString(col.GetName()), // COLUMN_NAME
+						dbNameStr,                                            // TABLE_CATALOG
+						scNameStr,                                            // TABLE_SCHEMA
+						tbNameStr,                                            // TABLE_NAME
+						tree.NewDString(col.GetName()),                       // COLUMN_NAME
 					); err != nil {
 						return err
 					}
@@ -958,10 +958,10 @@ https://www.postgresql.org/docs/9.5/infoschema-schemata.html`,
 			func(db catalog.DatabaseDescriptor) error {
 				return forEachSchema(ctx, p, db, func(sc catalog.SchemaDescriptor) error {
 					return addRow(
-						tree.NewDString(db.GetName()), // catalog_name
-						tree.NewDString(sc.GetName()), // schema_name
-						tree.DNull,                    // default_character_set_name
-						tree.DNull,                    // sql_path
+						tree.NewDString(db.GetName()),                              // catalog_name
+						tree.NewDString(sc.GetName()),                              // schema_name
+						tree.DNull,                                                 // default_character_set_name
+						tree.DNull,                                                 // sql_path
 						yesOrNoDatum(sc.SchemaKind() == catalog.SchemaUserDefined), // crdb_is_user_defined
 					)
 				})
@@ -1117,18 +1117,18 @@ https://www.postgresql.org/docs/9.5/infoschema-sequences.html`,
 					return nil
 				}
 				return addRow(
-					tree.NewDString(db.GetName()),    // catalog
-					tree.NewDString(scName),          // schema
-					tree.NewDString(table.GetName()), // name
-					tree.NewDString("bigint"),        // type
-					tree.NewDInt(64),                 // numeric precision
-					tree.NewDInt(2),                  // numeric precision radix
-					tree.NewDInt(0),                  // numeric scale
+					tree.NewDString(db.GetName()),                                             // catalog
+					tree.NewDString(scName),                                                   // schema
+					tree.NewDString(table.GetName()),                                          // name
+					tree.NewDString("bigint"),                                                 // type
+					tree.NewDInt(64),                                                          // numeric precision
+					tree.NewDInt(2),                                                           // numeric precision radix
+					tree.NewDInt(0),                                                           // numeric scale
 					tree.NewDString(strconv.FormatInt(table.GetSequenceOpts().Start, 10)),     // start value
 					tree.NewDString(strconv.FormatInt(table.GetSequenceOpts().MinValue, 10)),  // min value
 					tree.NewDString(strconv.FormatInt(table.GetSequenceOpts().MaxValue, 10)),  // max value
 					tree.NewDString(strconv.FormatInt(table.GetSequenceOpts().Increment, 10)), // increment
-					noString, // cycle
+					noString,                                                                  // cycle
 				)
 			})
 	},
@@ -1374,13 +1374,13 @@ func populateTablePrivileges(
 						isGrantable = tree.DNull
 					}
 					if err := addRow(
-						tree.DNull,                          // grantor
-						granteeNameStr,                      // grantee
-						dbNameStr,                           // table_catalog
-						scNameStr,                           // table_schema
-						tbNameStr,                           // table_name
-						tree.NewDString(priv.Kind.String()), // privilege_type
-						isGrantable,                         // is_grantable
+						tree.DNull,                                  // grantor
+						granteeNameStr,                              // grantee
+						dbNameStr,                                   // table_catalog
+						scNameStr,                                   // table_schema
+						tbNameStr,                                   // table_name
+						tree.NewDString(priv.Kind.String()),         // privilege_type
+						isGrantable,                                 // is_grantable
 						yesOrNoDatum(priv.Kind == privilege.SELECT), // with_hierarchy
 					); err != nil {
 						return err
@@ -1434,11 +1434,11 @@ func addTablesTableRow(
 		scNameStr := tree.NewDString(scName)
 		tbNameStr := tree.NewDString(table.GetName())
 		return addRow(
-			dbNameStr,  // table_catalog
-			scNameStr,  // table_schema
-			tbNameStr,  // table_name
-			tableType,  // table_type
-			insertable, // is_insertable_into
+			dbNameStr,                                   // table_catalog
+			scNameStr,                                   // table_schema
+			tbNameStr,                                   // table_name
+			tableType,                                   // table_type
+			insertable,                                  // is_insertable_into
 			tree.NewDInt(tree.DInt(table.GetVersion())), // version
 		)
 	}
@@ -2586,7 +2586,8 @@ SELECT
 	u.username,
 	"isRole",
   drs.settings,
-	json_object_agg(COALESCE(ro.option, 'null'), ro.value)
+	json_object_agg(COALESCE(ro.option, 'null'), ro.value),
+	u.user_id
 FROM
 	system.users AS u
 	LEFT JOIN system.role_options AS ro ON
@@ -2601,7 +2602,7 @@ GROUP BY
 func forEachRole(
 	ctx context.Context,
 	p *planner,
-	fn func(username security.SQLUsername, isRole bool, options roleOptions, settings tree.Datum) error,
+	fn func(username security.SQLUserInfo, isRole bool, options roleOptions, settings tree.Datum) error,
 ) error {
 	query := forEachRoleQuery(ctx, p)
 
@@ -2629,9 +2630,10 @@ func forEachRole(
 			return errors.Errorf("roleOptionJson should be a JSON value, found %s instead", row[3].ResolvedType())
 		}
 		options := roleOptions{roleOptionsJSON}
+		userID := row[5].(*tree.DOid).String()
 
 		// system tables already contain normalized usernames.
-		username := security.MakeSQLUsernameFromPreNormalizedString(string(usernameS))
+		username := security.MakeSQLUserInfoFromPreNormalizedString(string(usernameS), userID)
 		if err := fn(username, bool(*isRole), options, defaultSettings); err != nil {
 			return err
 		}

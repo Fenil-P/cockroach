@@ -20,7 +20,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/catalog/descs"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/cockroachdb/cockroach/pkg/sql/sessiondata"
-	"github.com/cockroachdb/cockroach/pkg/util/uuid"
 	"github.com/cockroachdb/errors"
 )
 
@@ -59,7 +58,7 @@ func GetUserIDWithCache(
 		if roleMembersCache.tableVersion != tableVersion {
 			// Update version and drop the map.
 			roleMembersCache.tableVersion = tableVersion
-			roleMembersCache.userCache = make(map[uuid.UUID]userRoleMembership)
+			roleMembersCache.userCache = make(map[oid.Oid]userRoleMembership)
 			roleMembersCache.userIDCache = make(map[security.SQLUsername]oid.Oid)
 			roleMembersCache.boundAccount.Empty(ctx)
 		}
@@ -141,7 +140,7 @@ func PublicRoleInfo(ctx context.Context, p *planner) security.SQLUserInfo {
 }
 
 // ToSQLUserInfos converts a slice of security.SQLUsername to slice of security.SQLUserInfo.
-func ToSQLUsernamesWithCache(
+func ToSQLUserInfosWithCache(
 	ctx context.Context,
 	execCfg *ExecutorConfig,
 	descsCol *descs.Collection,
@@ -161,4 +160,25 @@ func ToSQLUsernamesWithCache(
 		}
 	}
 	return targetRoles, nil
+}
+
+// GetSQLUserInfo converts a security.SQLUsername to a security.SQLUserInfo.
+func GetSQLUserInfo(
+	ctx context.Context,
+	execCfg *ExecutorConfig,
+	descsCol *descs.Collection,
+	executor *InternalExecutor,
+	txn *kv.Txn,
+	user security.SQLUsername,
+) (security.SQLUserInfo, error) {
+
+	userInfo := security.SQLUserInfo{Username: user}
+	userID, err := GetUserIDWithCache(ctx, execCfg, descsCol, executor, txn, user)
+	if err != nil {
+		return userInfo, err
+	}
+	userInfo.UserID = userID
+
+	return userInfo, nil
+
 }

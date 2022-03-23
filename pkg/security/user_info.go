@@ -30,3 +30,18 @@ func MakeSQLUserInfoFromPreNormalizedString(username string, ID string) SQLUserI
 	}
 	return SQLUserInfo{Username: MakeSQLUsernameFromPreNormalizedString(username), UserID: oid.Oid(i)}
 }
+
+// RootUserInfo is the SQLUserInfo for RootUser.
+func RootUserInfo() SQLUserInfo { return SQLUserInfo{RootUserName(), 1} }
+
+// AdminRoleInfo is the SQLUserInfo for AdminRole.
+func AdminRoleInfo() SQLUserInfo { return SQLUserInfo{AdminRoleName(), 2} }
+
+// PublicRoleInfo is the SQLUserInfo for PublicRole.
+func PublicRoleInfo() SQLUserInfo { return SQLUserInfo{PublicRoleName(), 3} }
+
+// NodeUserInfo is the SQLUserInfo for NodeUser.
+func NodeUserInfo() SQLUserInfo { return SQLUserInfo{NodeUserName(), 4} }
+
+// TestUserInfo is the SQLUserInfo for testuser.
+func TestUserInfo() SQLUserInfo { return SQLUserInfo{TestUserName(), 5} }

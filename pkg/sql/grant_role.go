@@ -64,7 +64,7 @@ func (p *planner) GrantRoleNode(ctx context.Context, n *tree.GrantRole) (*GrantR
 	if err != nil {
 		return nil, err
 	}
-	inputRoleInfos, err := ToSQLUsernamesWithCache(ctx, p.execCfg, p.Descriptors(), p.execCfg.InternalExecutor, p.txn, inputRoles)
+	inputRoleInfos, err := ToSQLUserInfosWithCache(ctx, p.execCfg, p.Descriptors(), p.execCfg.InternalExecutor, p.txn, inputRoles)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +72,7 @@ func (p *planner) GrantRoleNode(ctx context.Context, n *tree.GrantRole) (*GrantR
 	if err != nil {
 		return nil, err
 	}
-	inputMemberInfos, err := ToSQLUsernamesWithCache(ctx, p.execCfg, p.Descriptors(), p.execCfg.InternalExecutor, p.txn, inputMembers)
+	inputMemberInfos, err := ToSQLUserInfosWithCache(ctx, p.execCfg, p.Descriptors(), p.execCfg.InternalExecutor, p.txn, inputMembers)
 	if err != nil {
 		return nil, err
 	}

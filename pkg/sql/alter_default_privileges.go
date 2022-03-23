@@ -103,7 +103,7 @@ func (n *alterDefaultPrivilegesNode) startExec(params runParams) error {
 	if len(targetRoles) == 0 {
 		targetRoles = append(targetRoles, params.p.User())
 	}
-	targetRoleInfos, err := ToSQLUsernamesWithCache(params.ctx, params.p.execCfg, params.p.Descriptors(), params.p.execCfg.InternalExecutor, params.p.txn, targetRoles)
+	targetRoleInfos, err := ToSQLUserInfosWithCache(params.ctx, params.p.execCfg, params.p.Descriptors(), params.p.execCfg.InternalExecutor, params.p.txn, targetRoles)
 	if err != nil {
 		return err
 	}
@@ -126,7 +126,7 @@ func (n *alterDefaultPrivilegesNode) startExec(params runParams) error {
 	if err != nil {
 		return err
 	}
-	granteeSQLUserInfos, err := ToSQLUsernamesWithCache(params.ctx, params.p.execCfg, params.p.Descriptors(), params.p.execCfg.InternalExecutor, params.p.txn, granteeSQLUsernames)
+	granteeSQLUserInfos, err := ToSQLUserInfosWithCache(params.ctx, params.p.execCfg, params.p.Descriptors(), params.p.execCfg.InternalExecutor, params.p.txn, granteeSQLUsernames)
 	if err != nil {
 		return err
 	}
